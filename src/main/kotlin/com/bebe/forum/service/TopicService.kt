@@ -46,6 +46,12 @@ class TopicService(private var topics: List<Topic>) {
     }
 
     fun post(topic: Topic) {
-        topics.plus(topic)
+        topics = topics.plus(Topic(
+            id = topics.size.toLong() + 1,
+            title = topic.title,
+            message = topic.message,
+            course = Course(1, "Advanced Kotlin", "CS"),
+            author = User(1, "John", "john@email.com")
+        ))
     }
 }

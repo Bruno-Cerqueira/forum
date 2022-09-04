@@ -4,6 +4,7 @@ import com.bebe.forum.model.Course
 import com.bebe.forum.model.Topic
 import com.bebe.forum.model.User
 import com.bebe.forum.service.TopicService
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -28,6 +29,11 @@ class TopicController(private val topicService: TopicService) {
 
     @PostMapping
     fun post(@RequestBody topic: Topic) {
-        topicService.post(topic)
+        try {
+            topicService.post(topic)
+        } catch (e: HttpMessageNotReadableException){
+            e.printStackTrace()
+            println("ClassCastException foi pegada")
+        }
     }
 }
