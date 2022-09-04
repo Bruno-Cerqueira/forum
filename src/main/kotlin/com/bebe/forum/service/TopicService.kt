@@ -41,8 +41,11 @@ class TopicService(private var topics: List<Topic>) {
         return topics
     }
 
-
     fun getById(id: Long): Topic? {
         return topics.firstOrNull() { it.id == id }
+    }
+
+    fun post(topic: Topic) {
+        topics.plus(topic)
     }
 }
