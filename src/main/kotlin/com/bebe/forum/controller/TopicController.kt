@@ -1,5 +1,6 @@
 package com.bebe.forum.controller
 
+import com.bebe.forum.dto.NewTopicForm
 import com.bebe.forum.dto.TopicView
 import com.bebe.forum.model.Course
 import com.bebe.forum.model.Topic
@@ -29,7 +30,7 @@ class TopicController(private val topicService: TopicService) {
     }
 
     @PostMapping
-    fun post(@RequestBody topic: Topic) {
+    fun post(@RequestBody topic: NewTopicForm) {
         try {
             topicService.post(topic)
         } catch (e: HttpMessageNotReadableException){

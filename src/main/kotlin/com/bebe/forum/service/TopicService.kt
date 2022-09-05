@@ -1,6 +1,9 @@
 package com.bebe.forum.service
 
+import com.bebe.forum.dto.NewTopicForm
 import com.bebe.forum.dto.TopicView
+import com.bebe.forum.mapper.TopicFormMapper
+import com.bebe.forum.mapper.TopicViewMapper
 import com.bebe.forum.model.Course
 import com.bebe.forum.model.Topic
 import com.bebe.forum.model.User
@@ -8,7 +11,11 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class TopicService(private var topics: List<Topic>, private val courseService: CourseService, private val userService: UserService) {
+class TopicService(
+    private var topics: List<Topic>,
+    private val topicViewMapper: TopicViewMapper,
+    val topicFormMapper: TopicFormMapper
+) {
     init {
         val topic = Topic(
             id = 1,
@@ -38,36 +45,20 @@ class TopicService(private var topics: List<Topic>, private val courseService: C
     }
 
     fun listData (): List<TopicView> {
-        return topics.map { it -> TopicView(
-            id = it.id,
-            title = it.title,
-            message = it.message,
-            creationDate = it.creationDate,
-            status = it.status
-        ) }
+        return topics.map { it ->
+            topicViewMapper.map(it)
+        }
     }
 
     fun getById(id: Long): TopicView? {
         val topic: Topic? = topics.firstOrNull() { it.id == id }
-
         return topic?.let {
-            TopicView(
-                id = it.id,
-                title = it.title,
-                message = it.message,
-                creationDate = it.creationDate,
-                status = it.status
-            )
+            topicViewMapper.map(it)
         }
     }
 
-    fun post(topic: Topic) {
-        topics = topics.plus(Topic(
-            id = topics.size.toLong() + 1,
-            title = topic.title,
-            message = topic.message,
-            course = courseService.getById(1),
-            author = userService.getById(1),
-        ))
+    fun post(topic: NewTopicForm) {
+        topic.id = topics.size.toLong() + 1
+        topics = topics.plus(topicFormMapper.map(topic))
     }
 }
