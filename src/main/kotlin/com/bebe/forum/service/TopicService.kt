@@ -1,5 +1,6 @@
 package com.bebe.forum.service
 
+import com.bebe.forum.dto.TopicView
 import com.bebe.forum.model.Course
 import com.bebe.forum.model.Topic
 import com.bebe.forum.model.User
@@ -8,7 +9,6 @@ import java.util.*
 
 @Service
 class TopicService(private var topics: List<Topic>, private val courseService: CourseService, private val userService: UserService) {
-
     init {
         val topic = Topic(
             id = 1,
@@ -37,12 +37,28 @@ class TopicService(private var topics: List<Topic>, private val courseService: C
         topics = Arrays.asList(topic, topic2, topic3)
     }
 
-    fun listData (): List<Topic> {
-        return topics
+    fun listData (): List<TopicView> {
+        return topics.map { it -> TopicView(
+            id = it.id,
+            title = it.title,
+            message = it.message,
+            creationDate = it.creationDate,
+            status = it.status
+        ) }
     }
 
-    fun getById(id: Long): Topic? {
-        return topics.firstOrNull() { it.id == id }
+    fun getById(id: Long): TopicView? {
+        val topic: Topic? = topics.firstOrNull() { it.id == id }
+
+        return topic?.let {
+            TopicView(
+                id = it.id,
+                title = it.title,
+                message = it.message,
+                creationDate = it.creationDate,
+                status = it.status
+            )
+        }
     }
 
     fun post(topic: Topic) {

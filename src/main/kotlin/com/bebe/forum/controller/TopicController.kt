@@ -1,5 +1,6 @@
 package com.bebe.forum.controller
 
+import com.bebe.forum.dto.TopicView
 import com.bebe.forum.model.Course
 import com.bebe.forum.model.Topic
 import com.bebe.forum.model.User
@@ -18,12 +19,12 @@ import java.util.*
 class TopicController(private val topicService: TopicService) {
 
     @GetMapping
-    fun index() : List<Topic> {
+    fun index() : List<TopicView> {
         return topicService.listData()
     }
 
     @GetMapping("/{id}")
-    fun show(@PathVariable id: Long) : Topic? {
+    fun show(@PathVariable id: Long) : TopicView? {
         return topicService.getById(id)
     }
 
