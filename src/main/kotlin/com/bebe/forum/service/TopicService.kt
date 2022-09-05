@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class TopicService(private var topics: List<Topic>) {
+class TopicService(private var topics: List<Topic>, private val courseService: CourseService, private val userService: UserService) {
 
     init {
         val topic = Topic(
@@ -50,8 +50,8 @@ class TopicService(private var topics: List<Topic>) {
             id = topics.size.toLong() + 1,
             title = topic.title,
             message = topic.message,
-            course = Course(1, "Advanced Kotlin", "CS"),
-            author = User(1, "John", "john@email.com")
+            course = courseService.getById(1),
+            author = userService.getById(1),
         ))
     }
 }
