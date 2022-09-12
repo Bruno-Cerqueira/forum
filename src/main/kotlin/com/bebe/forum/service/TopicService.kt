@@ -2,11 +2,13 @@ package com.bebe.forum.service
 
 import com.bebe.forum.dto.NewTopicForm
 import com.bebe.forum.dto.TopicView
+import com.bebe.forum.dto.UpdateTopicForm
 import com.bebe.forum.mapper.TopicFormMapper
 import com.bebe.forum.mapper.TopicViewMapper
 import com.bebe.forum.model.Course
 import com.bebe.forum.model.Topic
 import com.bebe.forum.model.User
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -57,8 +59,32 @@ class TopicService(
         }
     }
 
-    fun post(topic: NewTopicForm) {
-        topic.id = topics.size.toLong() + 1
-        topics = topics.plus(topicFormMapper.map(topic))
+    fun post(topicForm: NewTopicForm): TopicView {
+        topicForm.id = topics.size.toLong() + 1
+        val topic = topicFormMapper.map(topicForm)
+        topics = topics.plus(topic)
+        return topicViewMapper.map(topic)
+
+    }
+
+    fun update(form: UpdateTopicForm): TopicView {
+        val topic: Topic = topics.first() { it.id == form.id }
+        val newTopic: Topic = Topic(
+            id = form.id,
+            title = form.title,
+            message = form.message,
+            author = topic.author,
+            course = topic.course,
+            answers = topic.answers,
+            status = topic.status,
+            creationDate = topic.creationDate
+        )!!
+        topics = topics.minus(topic).plus(newTopic as Topic)
+        return topicViewMapper.map(newTopic)
+    }
+
+    fun remove(id: Long) {
+        val topic: Topic = topics.first() { it.id == id }
+        topics = topics.minus(topic)
     }
 }
