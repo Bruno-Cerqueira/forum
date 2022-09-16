@@ -3,6 +3,7 @@ package com.bebe.forum.service
 import com.bebe.forum.dto.NewTopicForm
 import com.bebe.forum.dto.TopicView
 import com.bebe.forum.dto.UpdateTopicForm
+import com.bebe.forum.exception.NotFoundException
 import com.bebe.forum.mapper.TopicFormMapper
 import com.bebe.forum.mapper.TopicViewMapper
 import com.bebe.forum.model.Course
@@ -16,7 +17,8 @@ import java.util.*
 class TopicService(
     private var topics: List<Topic>,
     private val topicViewMapper: TopicViewMapper,
-    val topicFormMapper: TopicFormMapper
+    private val topicFormMapper: TopicFormMapper,
+    private val notFoundMessage: String = "Topic not found"
 ) {
     init {
         val topic = Topic(
@@ -84,7 +86,7 @@ class TopicService(
     }
 
     fun remove(id: Long) {
-        val topic: Topic = topics.first() { it.id == id }
+        val topic: Topic = topics.firstOrNull(){ it.id == id } ?: throw NotFoundException(notFoundMessage)
         topics = topics.minus(topic)
     }
 }
