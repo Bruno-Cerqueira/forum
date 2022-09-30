@@ -9,68 +9,39 @@ import com.bebe.forum.mapper.TopicViewMapper
 import com.bebe.forum.model.Course
 import com.bebe.forum.model.Topic
 import com.bebe.forum.model.User
+import com.bebe.forum.repository.TopicRepository
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
 class TopicService(
-    private var topics: List<Topic>,
+    private val repository: TopicRepository,
     private val topicViewMapper: TopicViewMapper,
     private val topicFormMapper: TopicFormMapper,
     private val notFoundMessage: String = "Topic not found"
 ) {
-    init {
-        val topic = Topic(
-            id = 1,
-            title = "Kotlin",
-            message = "Kotlin coroutines",
-            course = Course(1, "Advanced Kotlin", "CS"),
-            author = User(1, "John", "john@email.com")
-        )
-
-        val topic2 = Topic(
-            id = 2,
-            title = "Kotlin2",
-            message = "Kotlin coroutines2",
-            course = Course(1, "Advanced Kotlin", "CS"),
-            author = User(1, "John", "john@email.com")
-        )
-
-        val topic3 = Topic(
-            id = 3,
-            title = "Kotlin3",
-            message = "Kotlin coroutines3",
-            course = Course(1, "Advanced Kotlin", "CS"),
-            author = User(1, "John", "john@email.com")
-        )
-
-        topics = Arrays.asList(topic, topic2, topic3)
-    }
 
     fun listData (): List<TopicView> {
-        return topics.map { it ->
+        return repository.findAll().map { it ->
             topicViewMapper.map(it)
         }
     }
 
     fun getById(id: Long): TopicView? {
-        val topic: Topic? = topics.firstOrNull() { it.id == id }
-        return topic?.let {
-            topicViewMapper.map(it)
-        }
+        val topic: Topic = repository.findById(id).orElseThrow{NotFoundException(notFoundMessage)}
+        return topicViewMapper.map(topic)
     }
 
     fun post(topicForm: NewTopicForm): TopicView {
-        topicForm.id = topics.size.toLong() + 1
         val topic = topicFormMapper.map(topicForm)
-        topics = topics.plus(topic)
+        repository.save(topic)
         return topicViewMapper.map(topic)
 
     }
 
     fun update(form: UpdateTopicForm): TopicView {
-        val topic: Topic = topics.first() { it.id == form.id }
+        val topic: Topic = repository.findById(form.id).orElseThrow{NotFoundException(notFoundMessage)}
         val newTopic: Topic = Topic(
             id = form.id,
             title = form.title,
@@ -80,13 +51,13 @@ class TopicService(
             answers = topic.answers,
             status = topic.status,
             creationDate = topic.creationDate
-        )!!
-        topics = topics.minus(topic).plus(newTopic as Topic)
-        return topicViewMapper.map(newTopic)
+        )
+        topic.title = form.title
+        topic.message = form.message
+        return topicViewMapper.map(topic)
     }
 
     fun remove(id: Long) {
-        val topic: Topic = topics.firstOrNull(){ it.id == id } ?: throw NotFoundException(notFoundMessage)
-        topics = topics.minus(topic)
+        repository.deleteById(id)
     }
 }
