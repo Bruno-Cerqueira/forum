@@ -9,8 +9,6 @@ import java.util.Arrays
 @Service
 class CourseService(private val repository: CourseRespository) {
     fun getById(id: Long): Course? {
-        return repository.getOne(id)
+        return repository.getReferenceById(id)
     }
-
-
 }

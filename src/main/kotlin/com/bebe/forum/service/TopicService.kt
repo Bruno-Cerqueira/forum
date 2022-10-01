@@ -6,13 +6,9 @@ import com.bebe.forum.dto.UpdateTopicForm
 import com.bebe.forum.exception.NotFoundException
 import com.bebe.forum.mapper.TopicFormMapper
 import com.bebe.forum.mapper.TopicViewMapper
-import com.bebe.forum.model.Course
 import com.bebe.forum.model.Topic
-import com.bebe.forum.model.User
 import com.bebe.forum.repository.TopicRepository
-import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
-import java.util.*
 
 @Service
 class TopicService(
@@ -24,6 +20,7 @@ class TopicService(
 
     fun listData (): List<TopicView> {
         return repository.findAll().map { it ->
+            println(it)
             topicViewMapper.map(it)
         }
     }
@@ -42,16 +39,6 @@ class TopicService(
 
     fun update(form: UpdateTopicForm): TopicView {
         val topic: Topic = repository.findById(form.id).orElseThrow{NotFoundException(notFoundMessage)}
-        val newTopic: Topic = Topic(
-            id = form.id,
-            title = form.title,
-            message = form.message,
-            author = topic.author,
-            course = topic.course,
-            answers = topic.answers,
-            status = topic.status,
-            creationDate = topic.creationDate
-        )
         topic.title = form.title
         topic.message = form.message
         return topicViewMapper.map(topic)

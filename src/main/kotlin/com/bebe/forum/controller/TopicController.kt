@@ -38,7 +38,7 @@ class TopicController(private val topicService: TopicService) {
     @Transactional
     fun post(@RequestBody @Valid topic: NewTopicForm, uriBuilder: UriComponentsBuilder) : ResponseEntity<TopicView> {
         val topicView = topicService.post(topic)
-        val uri = uriBuilder.path("/topcis/${topicView.id}").build().toUri()
+        val uri = uriBuilder.path("/topics/${topicView.id}").build().toUri()
         return ResponseEntity.created(uri).body(topicView)
 
     }
