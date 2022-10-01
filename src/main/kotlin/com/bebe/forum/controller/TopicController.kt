@@ -6,6 +6,7 @@ import com.bebe.forum.dto.UpdateTopicForm
 import com.bebe.forum.service.TopicService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -29,7 +30,7 @@ import javax.validation.Valid
 class TopicController(private val topicService: TopicService) {
 
     @GetMapping
-    fun index(@RequestParam(required = false) courseName: String?, @PageableDefault(size = 2) pagination: Pageable) : Page<TopicView> {
+    fun index(@RequestParam(required = false) courseName: String?, @PageableDefault(size = 2, sort = ["id"], direction = Sort.Direction.DESC) pagination: Pageable) : Page<TopicView> {
         return topicService.listData(courseName, pagination)
     }
 
