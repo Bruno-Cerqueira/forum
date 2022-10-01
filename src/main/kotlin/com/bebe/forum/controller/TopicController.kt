@@ -4,6 +4,9 @@ import com.bebe.forum.dto.NewTopicForm
 import com.bebe.forum.dto.TopicView
 import com.bebe.forum.dto.UpdateTopicForm
 import com.bebe.forum.service.TopicService
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.transaction.annotation.Transactional
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.util.UriComponentsBuilder
@@ -25,8 +29,8 @@ import javax.validation.Valid
 class TopicController(private val topicService: TopicService) {
 
     @GetMapping
-    fun index() : List<TopicView> {
-        return topicService.listData()
+    fun index(@RequestParam(required = false) courseName: String?, @PageableDefault(size = 2) pagination: Pageable) : Page<TopicView> {
+        return topicService.listData(courseName, pagination)
     }
 
     @GetMapping("/{id}")

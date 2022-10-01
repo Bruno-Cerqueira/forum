@@ -8,6 +8,8 @@ import com.bebe.forum.mapper.TopicFormMapper
 import com.bebe.forum.mapper.TopicViewMapper
 import com.bebe.forum.model.Topic
 import com.bebe.forum.repository.TopicRepository
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
 @Service
@@ -18,9 +20,13 @@ class TopicService(
     private val notFoundMessage: String = "Topic not found"
 ) {
 
-    fun listData (): List<TopicView> {
-        return repository.findAll().map { it ->
-            println(it)
+    fun listData (courseName: String?, pagination: Pageable): Page<TopicView> {
+        val topics = if(courseName == null) {
+            repository.findAll(pagination)
+        } else {
+            repository.findByCourseName(courseName, pagination)
+        }
+        return topics.map { it ->
             topicViewMapper.map(it)
         }
     }
