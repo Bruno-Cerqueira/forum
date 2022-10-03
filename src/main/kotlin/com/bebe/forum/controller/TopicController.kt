@@ -4,6 +4,8 @@ import com.bebe.forum.dto.NewTopicForm
 import com.bebe.forum.dto.TopicView
 import com.bebe.forum.dto.UpdateTopicForm
 import com.bebe.forum.service.TopicService
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -30,6 +32,7 @@ import javax.validation.Valid
 class TopicController(private val topicService: TopicService) {
 
     @GetMapping
+    @Cacheable("TopicsList")
     fun index(@RequestParam(required = false) courseName: String?, @PageableDefault(size = 2, sort = ["id"], direction = Sort.Direction.DESC) pagination: Pageable) : Page<TopicView> {
         return topicService.listData(courseName, pagination)
     }
@@ -41,6 +44,7 @@ class TopicController(private val topicService: TopicService) {
 
     @PostMapping
     @Transactional
+    @CacheEvict(value = ["TopicsList"], allEntries = true)
     fun post(@RequestBody @Valid topic: NewTopicForm, uriBuilder: UriComponentsBuilder) : ResponseEntity<TopicView> {
         val topicView = topicService.post(topic)
         val uri = uriBuilder.path("/topics/${topicView.id}").build().toUri()
@@ -50,6 +54,7 @@ class TopicController(private val topicService: TopicService) {
 
     @PutMapping
     @Transactional
+    @CacheEvict(value = ["TopicsList"], allEntries = true)
     fun update(@RequestBody @Valid topic: UpdateTopicForm): ResponseEntity<TopicView> {
         val topicView = topicService.update(topic)
         return ResponseEntity.ok(topicView)
@@ -57,6 +62,7 @@ class TopicController(private val topicService: TopicService) {
 
     @DeleteMapping("/{id}")
     @Transactional
+    @CacheEvict(value = ["TopicsList"], allEntries = true)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun delete(@PathVariable id: Long){
         topicService.remove(id)
