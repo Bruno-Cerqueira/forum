@@ -53,4 +53,8 @@ class TopicService(
     fun remove(id: Long) {
         repository.deleteById(id)
     }
+
+    fun report() {
+        repository.report()
+    }
 }

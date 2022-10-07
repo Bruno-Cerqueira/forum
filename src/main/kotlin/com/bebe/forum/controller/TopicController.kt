@@ -67,4 +67,9 @@ class TopicController(private val topicService: TopicService) {
     fun delete(@PathVariable id: Long){
         topicService.remove(id)
     }
+
+    @GetMapping("/report")
+    fun report() {
+        return topicService.report()
+    }
 }
