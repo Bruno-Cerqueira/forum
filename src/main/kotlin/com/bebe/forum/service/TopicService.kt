@@ -1,6 +1,7 @@
 package com.bebe.forum.service
 
 import com.bebe.forum.dto.NewTopicForm
+import com.bebe.forum.dto.TopicByCategoryDTO
 import com.bebe.forum.dto.TopicView
 import com.bebe.forum.dto.UpdateTopicForm
 import com.bebe.forum.exception.NotFoundException
@@ -54,7 +55,7 @@ class TopicService(
         repository.deleteById(id)
     }
 
-    fun report() {
-        repository.report()
+    fun report(): List<TopicByCategoryDTO> {
+        return repository.report()
     }
 }

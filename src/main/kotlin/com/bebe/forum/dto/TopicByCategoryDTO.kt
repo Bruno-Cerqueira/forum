@@ -1,4 +1,6 @@
 package com.bebe.forum.dto
 
-class TopicByCategoryDTO {
-}
+data class TopicByCategoryDTO (
+    val category: String,
+    val quantity: Long,
+)

@@ -1,5 +1,6 @@
 package com.bebe.forum.repository
 
+import com.bebe.forum.dto.TopicByCategoryDTO
 import com.bebe.forum.model.Topic
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable

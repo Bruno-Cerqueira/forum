@@ -1,6 +1,7 @@
 package com.bebe.forum.controller
 
 import com.bebe.forum.dto.NewTopicForm
+import com.bebe.forum.dto.TopicByCategoryDTO
 import com.bebe.forum.dto.TopicView
 import com.bebe.forum.dto.UpdateTopicForm
 import com.bebe.forum.service.TopicService
@@ -69,7 +70,7 @@ class TopicController(private val topicService: TopicService) {
     }
 
     @GetMapping("/report")
-    fun report() {
+    fun report(): List<TopicByCategoryDTO> {
         return topicService.report()
     }
 }
