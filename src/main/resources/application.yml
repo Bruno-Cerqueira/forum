@@ -1,12 +1,14 @@
 spring:
   datasource:
-    driverClassName: org.h2.Driver
-    url: jdbc:h2:mem:forum
-    username: sa
-    password:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/kotlin_crud_db
+    username: root
+    password: 123456
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
     properties:
       hibernate:
-        show_sql: true
+        show-sql: true
         format_sql: true
+        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+    hibernate:
+      ddl-auto: update
