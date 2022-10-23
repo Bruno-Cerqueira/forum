@@ -32,6 +32,7 @@ class TopicController(private val topicService: TopicService) {
     @GetMapping("/{id}")
     fun show(@PathVariable id: Long) : ResponseEntity<TopicView?> {
         val topic = topicService.getById(id)
+        println(topic)
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(topic)
     }
 
