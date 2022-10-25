@@ -9,4 +9,8 @@ class TopicView (
     val message: String,
     val status: TopicStatus,
     val creationDate: LocalDateTime
-)
+) {
+    override fun toString(): String {
+        return "{\"id\":$id,\"title\":\"$title\",\"message\":\"$message\",\"status\":\"$status\",\"creationDate\":\"$creationDate\"}"
+    }
+}
