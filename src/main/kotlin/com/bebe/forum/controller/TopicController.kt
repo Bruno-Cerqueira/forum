@@ -25,8 +25,9 @@ class TopicController(private val topicService: TopicService) {
 
     @GetMapping
     @Cacheable("TopicsList")
-    fun index(@RequestParam(required = false) courseName: String?, @PageableDefault(size = 2, sort = ["id"], direction = Sort.Direction.DESC) pagination: Pageable) : Page<TopicView> {
-        return topicService.listData(courseName, pagination)
+    fun index(@RequestParam(required = false) courseName: String?, @PageableDefault(size = 2, sort = ["id"], direction = Sort.Direction.DESC) pagination: Pageable) : ResponseEntity<Page<TopicView>> {
+        val topics = topicService.listData(courseName, pagination)
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(topics)
     }
 
     @GetMapping("/{id}")

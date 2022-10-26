@@ -3,24 +3,22 @@ package com.bebe.forum.controller
 import com.bebe.forum.dto.TopicView
 import com.bebe.forum.model.*
 import com.bebe.forum.service.TopicService
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
+import org.hamcrest.MatcherAssert
+import org.junit.jupiter.api.*
+import org.junit.jupiter.api.TestInstance.Lifecycle
 import org.mockito.Mockito
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.autoconfigure.gson.GsonProperties
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.boot.test.json.GsonTester
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.data.domain.*
 import org.springframework.http.MediaType
-import org.springframework.http.converter.json.GsonBuilderUtils
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.ResultActionsDsl
 import org.springframework.test.web.servlet.get
-import org.springframework.util.Assert
 import java.time.LocalDateTime
+import org.assertj.core.api.Assertions.assertThat
 
 
 @WebMvcTest(TopicController::class)
@@ -32,47 +30,78 @@ class TopicControllerTest {
     private lateinit var topicService: TopicService
 
     @Nested
+    @TestInstance(Lifecycle.PER_CLASS)
     inner class Show {
-        @Test
-        fun whenValidInput_thenReturns200() {
-            val topicView = TopicView(1, "General", "Message", TopicStatus.NOT_ANSWERED, LocalDateTime.now())
-            Mockito.`when`(topicService.getById(1)).thenReturn(topicView)
+        val topicView = TopicView(1, "General", "Message", TopicStatus.NOT_ANSWERED, LocalDateTime.now())
 
-            // 1. Verifying HTTP Request Matching
-            val result = mockMvc.get("/topics/{id}", 1){
+        lateinit var result : ResultActionsDsl
+        @BeforeEach
+        fun setup() {
+            Mockito.`when`(topicService.getById(1)).thenReturn(topicView)
+            result = mockMvc.get("/topics/{id}", 1){
                 contentType = MediaType.APPLICATION_JSON
                 accept = MediaType.APPLICATION_JSON
-            }.andExpect {
+            }
+        }
+
+        // 1. Verifying HTTP Request Matching
+        @Test
+        fun whenValidReturns200() {
+            result.andExpect {
                 status { isOk() }
                 content { contentType(MediaType.APPLICATION_JSON) }
-            }.andReturn()
+            }
+        }
 
-            val getTopicResponse = result.response.contentAsString
-
-            // 4. Verifying Business Logic Calls
+        // 4. Verifying Business Logic Calls
+        @Test
+        fun whenValidInput_thenMapsToBusinessModel() {
             verify(topicService, times(1)).getById(1)
+        }
 
-            // 5. Verifying Output Serialization
+        // 5. Verifying Output Serialization
+        @Test
+        fun whenValidInput_thenReturnsUserResource() {
+            val getTopicResponse = result.andReturn().response.contentAsString
             Assertions.assertEquals(getTopicResponse, topicView.toString())
-
-            // 3. Verifying Input Validation
-            // 2. Verifying Input Deserialization
-            // 6. Verifying Exception Handling
         }
     }
     @Nested
     inner class Index {
-        @Test
-        fun whenReturns200() {
-            mockMvc.get("/topics"){
+        val topicView = TopicView(1, "General", "Message", TopicStatus.NOT_ANSWERED, LocalDateTime.now())
+        var pageable: Pageable = PageRequest.of(0,2, Sort.Direction.DESC, "id")
+        var pagedResponse: Page<TopicView?> = PageImpl<TopicView?>(listOf(topicView))
+        lateinit var result : ResultActionsDsl
+        @BeforeEach
+        fun setup() {
+            Mockito.`when`(topicService.listData(null, pageable)).thenReturn(pagedResponse as Page<TopicView>)
+            result = mockMvc.get("/topics") {
                 contentType = MediaType.APPLICATION_JSON
                 accept = MediaType.APPLICATION_JSON
-            }.andExpect {
-                status { isOk() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                content { "Hello" }
             }
         }
-    }
 
+        // 1. Verifying HTTP Request Matching
+        @Test
+        fun whenValidReturns200() {
+            result.andExpect {
+                status { isOk() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+            }
+        }
+
+        // 4. Verifying Business Logic Calls
+        @Test
+        fun whenValidInput_thenMapsToBusinessModel() {
+            verify(topicService, times(1)).listData(null, pageable)
+        }
+
+        // 5. Verifying Output Serialization
+        @Test
+        fun whenValidInput_thenReturnsUserResource() {
+            val getTopicResponse = result.andReturn().response.contentAsString
+            assertThat(getTopicResponse).contains(topicView.toString())
+        }
+    }
 }
+
