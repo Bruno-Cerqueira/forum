@@ -1,5 +1,6 @@
 package com.bebe.forum.controller
 
+import com.bebe.forum.dto.NewTopicForm
 import com.bebe.forum.dto.TopicView
 import com.bebe.forum.model.*
 import com.bebe.forum.service.TopicService
@@ -19,6 +20,8 @@ import org.springframework.test.web.servlet.ResultActionsDsl
 import org.springframework.test.web.servlet.get
 import java.time.LocalDateTime
 import org.assertj.core.api.Assertions.assertThat
+import org.json.JSONObject
+import org.springframework.test.web.servlet.post
 
 
 @WebMvcTest(TopicController::class)
@@ -28,13 +31,11 @@ class TopicControllerTest {
 
     @MockBean
     private lateinit var topicService: TopicService
+    val topicView = TopicView(1, "General", "Message", TopicStatus.NOT_ANSWERED, LocalDateTime.now())
+    lateinit var result : ResultActionsDsl
 
     @Nested
-    @TestInstance(Lifecycle.PER_CLASS)
     inner class Show {
-        val topicView = TopicView(1, "General", "Message", TopicStatus.NOT_ANSWERED, LocalDateTime.now())
-
-        lateinit var result : ResultActionsDsl
         @BeforeEach
         fun setup() {
             Mockito.`when`(topicService.getById(1)).thenReturn(topicView)
@@ -68,10 +69,8 @@ class TopicControllerTest {
     }
     @Nested
     inner class Index {
-        val topicView = TopicView(1, "General", "Message", TopicStatus.NOT_ANSWERED, LocalDateTime.now())
         var pageable: Pageable = PageRequest.of(0,2, Sort.Direction.DESC, "id")
         var pagedResponse: Page<TopicView?> = PageImpl<TopicView?>(listOf(topicView))
-        lateinit var result : ResultActionsDsl
         @BeforeEach
         fun setup() {
             Mockito.`when`(topicService.listData(null, pageable)).thenReturn(pagedResponse as Page<TopicView>)
@@ -94,6 +93,45 @@ class TopicControllerTest {
         @Test
         fun whenValidInput_thenMapsToBusinessModel() {
             verify(topicService, times(1)).listData(null, pageable)
+        }
+
+        // 5. Verifying Output Serialization
+        @Test
+        fun whenValidInput_thenReturnsUserResource() {
+            val getTopicResponse = result.andReturn().response.contentAsString
+            assertThat(getTopicResponse).contains(topicView.toString())
+        }
+    }
+
+    @Nested
+    inner class Post {
+        val payload = mapOf("id" to 1, "title" to "Title", "message" to "message", "idCourse" to 1, "idClient" to 1)
+        val topicForm = NewTopicForm(1, "Title", "message", 1,  1)
+        val topicView = TopicView(1, "Title", "message", TopicStatus.NOT_ANSWERED, LocalDateTime.now())
+
+        @BeforeEach
+        fun setup() {
+            Mockito.`when`(topicService.post(topicForm)).thenReturn(topicView)
+            result = mockMvc.post("/topics") {
+                content = JSONObject(payload).toString()
+                contentType = MediaType.APPLICATION_JSON
+                accept = MediaType.APPLICATION_JSON
+            }
+        }
+
+        // 1. Verifying HTTP Request Matching
+        @Test
+        fun whenValidReturns200() {
+            result.andExpect {
+                status { isCreated() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+            }
+        }
+
+        // 4. Verifying Business Logic Calls
+        @Test
+        fun whenValidInput_thenMapsToBusinessModel() {
+            verify(topicService, times(1)).post(topicForm)
         }
 
         // 5. Verifying Output Serialization
