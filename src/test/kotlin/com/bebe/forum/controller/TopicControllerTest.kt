@@ -113,6 +113,7 @@ class TopicControllerTest {
         fun setup() {
             Mockito.`when`(topicService.post(topicForm)).thenReturn(topicView)
             result = mockMvc.post("/topics") {
+                // 2. Verifying Input Deserialization
                 content = JSONObject(payload).toString()
                 contentType = MediaType.APPLICATION_JSON
                 accept = MediaType.APPLICATION_JSON
@@ -121,7 +122,7 @@ class TopicControllerTest {
 
         // 1. Verifying HTTP Request Matching
         @Test
-        fun whenValidReturns200() {
+        fun whenValidReturns201() {
             result.andExpect {
                 status { isCreated() }
                 content { contentType(MediaType.APPLICATION_JSON) }
@@ -139,6 +140,24 @@ class TopicControllerTest {
         fun whenValidInput_thenReturnsUserResource() {
             val getTopicResponse = result.andReturn().response.contentAsString
             assertThat(getTopicResponse).contains(topicView.toString())
+        }
+    }
+
+    // 6. Verifying Exception Handling
+    // 3. Verifying Input Validation
+    @Nested
+    inner class Validation {
+        @Test
+        fun whenNullValue_thenReturns400() {
+            val payloadWithError = mapOf("id" to 1, "title" to null, "message" to "message", "idCourse" to 1, "idClient" to 1)
+            result = mockMvc.post("/topics") {
+                content = JSONObject(payloadWithError).toString()
+                contentType = MediaType.APPLICATION_JSON
+                accept = MediaType.APPLICATION_JSON
+            }.andExpect {
+                status { isBadRequest() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+            }
         }
     }
 }
