@@ -25,6 +25,7 @@ class ExceptionHandler {
         exception.bindingResult.fieldErrors.forEach {
             e -> errorMessage.put(e.field, e.defaultMessage)
         }
+
         return ErrorView(
             status = HttpStatus.BAD_REQUEST.value(),
             error = HttpStatus.BAD_REQUEST.name,
@@ -32,7 +33,6 @@ class ExceptionHandler {
             path = request.servletPath
         )
     }
-
     @ExceptionHandler(Exception::class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     fun handleServerError(exception: Exception, request: HttpServletRequest): ErrorView {

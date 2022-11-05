@@ -41,6 +41,7 @@ class TopicController(private val topicService: TopicService) {
     @CacheEvict(value = ["TopicsList"], allEntries = true)
     fun post(@RequestBody @Valid topic: NewTopicForm, uriBuilder: UriComponentsBuilder) : ResponseEntity<TopicView> {
         val topicView = topicService.post(topic)
+        println(topicView)
         val uri = uriBuilder.path("/topics/${topicView.id}").build().toUri()
         return ResponseEntity.created(uri).body(topicView)
 

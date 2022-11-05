@@ -4,9 +4,7 @@ import com.bebe.forum.dto.NewTopicForm
 import com.bebe.forum.dto.TopicView
 import com.bebe.forum.model.*
 import com.bebe.forum.service.TopicService
-import org.hamcrest.MatcherAssert
 import org.junit.jupiter.api.*
-import org.junit.jupiter.api.TestInstance.Lifecycle
 import org.mockito.Mockito
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
@@ -105,8 +103,8 @@ class TopicControllerTest {
 
     @Nested
     inner class Post {
-        val payload = mapOf("id" to 1, "title" to "Title", "message" to "message", "idCourse" to 1, "idClient" to 1)
-        val topicForm = NewTopicForm(1, "Title", "message", 1,  1)
+        val payload = mapOf("title" to "Title", "message" to "message")
+        val topicForm = NewTopicForm(null, "Title", "message")
         val topicView = TopicView(1, "Title", "message", TopicStatus.NOT_ANSWERED, LocalDateTime.now())
 
         @BeforeEach
@@ -147,9 +145,12 @@ class TopicControllerTest {
     // 3. Verifying Input Validation
     @Nested
     inner class Validation {
+
+
+
         @Test
-        fun whenNullValue_thenReturns400() {
-            val payloadWithError = mapOf("id" to 1, "title" to null, "message" to "message", "idCourse" to 1, "idClient" to 1)
+        fun whenNullTitle_thenReturns400() {
+            val payloadWithError = mapOf("id" to 1, "title" to null, "message" to "message")
             result = mockMvc.post("/topics") {
                 content = JSONObject(payloadWithError).toString()
                 contentType = MediaType.APPLICATION_JSON
@@ -158,6 +159,25 @@ class TopicControllerTest {
                 status { isBadRequest() }
                 content { contentType(MediaType.APPLICATION_JSON) }
             }
+
+            val badResponse = result.andReturn().response.contentAsString
+            assertThat(badResponse).contains("title=must not be empty")
+        }
+
+        @Test
+        fun whenNullMessage_thenReturns400() {
+            val payloadWithError = mapOf("id" to 1, "title" to "title", "message" to null)
+            result = mockMvc.post("/topics") {
+                content = JSONObject(payloadWithError).toString()
+                contentType = MediaType.APPLICATION_JSON
+                accept = MediaType.APPLICATION_JSON
+            }.andExpect {
+                status { isBadRequest() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+            }
+
+            val badResponse = result.andReturn().response.contentAsString
+            assertThat(badResponse).contains("message=must not be empty")
         }
     }
 }

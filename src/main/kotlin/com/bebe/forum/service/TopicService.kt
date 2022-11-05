@@ -38,6 +38,7 @@ class TopicService(
     }
 
     fun post(topicForm: NewTopicForm): TopicView {
+        println("dentro")
         val topic = topicFormMapper.map(topicForm)
         repository.save(topic)
         return topicViewMapper.map(topic)
