@@ -108,14 +108,11 @@ class TopicControllerTest {
 
     @Nested
     inner class Post {
-        val payload = mapOf("id" to null, "title" to "Title", "message" to "message")
         val topicForm = NewTopicForm(id = null, title =  "Title", message =  "message")
-        val topicView = TopicView(1, "Title", "message", TopicStatus.NOT_ANSWERED, LocalDateTime.now())
 
         @BeforeEach
         fun setup() {
             Mockito.`when`(topicService.post(topicForm)).thenReturn(topicView)
-            println("topic mocked: ${topicForm.toString()}")
             result = mockMvc.post("/topics") {
                 // 2. Verifying Input Deserialization
                 content = JSONObject(objectMapper.writeValueAsString(topicForm)).toString()
