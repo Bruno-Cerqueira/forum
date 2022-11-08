@@ -4,10 +4,9 @@ import com.bebe.forum.dto.NewTopicForm
 import com.bebe.forum.dto.TopicView
 import com.bebe.forum.model.*
 import com.bebe.forum.service.TopicService
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.*
 import org.mockito.Mockito
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -19,6 +18,8 @@ import org.springframework.test.web.servlet.get
 import java.time.LocalDateTime
 import org.assertj.core.api.Assertions.assertThat
 import org.json.JSONObject
+import org.junit.jupiter.api.TestInstance.Lifecycle
+import org.mockito.Mockito.*
 import org.springframework.test.web.servlet.post
 
 
@@ -27,8 +28,12 @@ class TopicControllerTest {
     @Autowired
     private lateinit var mockMvc: MockMvc;
 
+    @Autowired
+    private lateinit var objectMapper: ObjectMapper;
+
     @MockBean
     private lateinit var topicService: TopicService
+
     val topicView = TopicView(1, "General", "Message", TopicStatus.NOT_ANSWERED, LocalDateTime.now())
     lateinit var result : ResultActionsDsl
 
@@ -103,16 +108,17 @@ class TopicControllerTest {
 
     @Nested
     inner class Post {
-        val payload = mapOf("title" to "Title", "message" to "message")
-        val topicForm = NewTopicForm(null, "Title", "message")
+        val payload = mapOf("id" to null, "title" to "Title", "message" to "message")
+        val topicForm = NewTopicForm(id = null, title =  "Title", message =  "message")
         val topicView = TopicView(1, "Title", "message", TopicStatus.NOT_ANSWERED, LocalDateTime.now())
 
         @BeforeEach
         fun setup() {
             Mockito.`when`(topicService.post(topicForm)).thenReturn(topicView)
+            println("topic mocked: ${topicForm.toString()}")
             result = mockMvc.post("/topics") {
                 // 2. Verifying Input Deserialization
-                content = JSONObject(payload).toString()
+                content = JSONObject(objectMapper.writeValueAsString(topicForm)).toString()
                 contentType = MediaType.APPLICATION_JSON
                 accept = MediaType.APPLICATION_JSON
             }
