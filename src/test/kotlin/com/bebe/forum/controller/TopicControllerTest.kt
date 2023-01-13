@@ -148,9 +148,6 @@ class TopicControllerTest {
     // 3. Verifying Input Validation
     @Nested
     inner class Validation {
-
-
-
         @Test
         fun whenNullTitle_thenReturns400() {
             val payloadWithError = mapOf("id" to 1, "title" to null, "message" to "message")
