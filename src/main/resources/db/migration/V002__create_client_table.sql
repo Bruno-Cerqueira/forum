@@ -5,4 +5,3 @@ create table client(
     primary key(id)
 );
 
-insert into client values(1, 'Elis', 'elis@gmail.com');

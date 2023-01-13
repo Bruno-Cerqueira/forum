@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull
 data class Topic(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long?,
+    val id: Long? = null,
 
     @NotNull
     var title: String,

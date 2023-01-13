@@ -5,4 +5,3 @@ create table course(
     primary key(id)
 );
 
-insert into course values(1, 'Kotlin', 'CS');
